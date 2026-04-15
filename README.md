@@ -198,6 +198,39 @@ Use this section to document the experiments you ran. For example:
 - What happened when you added tempo or valence to the score
 - How did your system behave for different types of users
 
+### Sensitivity Experiment — Weight Shift (genre 2.0→1.0, energy 2.0→4.0)
+
+**Change applied:** halved genre bonus, doubled energy weight. New max score = 7.5.
+
+**Before vs After — top-3 per standard profile:**
+
+```
+                    BASELINE                    EXPERIMENT
+                    genre=2.0 energy×2.0        genre=1.0 energy×4.0
+High-Energy Pop:
+  #1  Sunrise City    6.33      #1  Sunrise City    7.21  (unchanged)
+  #2  Gym Hero        5.29      #2  Gym Hero        6.19  (unchanged)
+  #3  Rooftop Lights  4.10      #3  Rooftop Lights  5.86  (unchanged)
+
+Chill Lofi:
+  #1  Library Rain    6.40      #1  Library Rain    7.34  (unchanged)
+  #2  Midnight Coding 6.35      #2  Midnight Coding 7.27  (unchanged)
+  #3  Focus Flow      5.43      #3  Focus Flow      6.39  (unchanged)
+
+Deep Intense Rock:
+  #1  Storm Runner    6.41      #1  Storm Runner    7.39  (unchanged)
+  #2  Gym Hero        4.11      #2  Gym Hero        6.09  (unchanged)
+  #3  Iron Meridian   3.19      #3  Iron Meridian   5.09  (unchanged)
+```
+
+**Verdict — the rankings did not change, only the scores inflated.** Every #1, #2, and #3 stayed identical across all three standard profiles. The weight shift made the system *more confident* (higher scores) but not *more accurate* or *more diverse*.
+
+**Why didn't the order change?** The songs at the top of each list already matched both genre AND energy well. Giving energy more weight only inflated their scores further. For a weight shift to reorder results, you need a situation where a song ranks high on energy but low on genre (or vice versa) — and in these three profiles, the top songs were strong on both simultaneously.
+
+**EDGE 1 revealed a real difference.** With the genre trap profile (lofi genre + intense energy=0.93), the lofi songs dropped further down the list under the experiment because their genre bonus (+1.0 instead of +2.0) could no longer compete with the energy penalty. The scores compressed: in the baseline the lofi songs clustered at #3–#5 scoring ~3.8–4.0; in the experiment they dropped below songs with better energy regardless of genre.
+
+**What the experiment proved:** In a well-matched profile, weight ratios between genre and energy don't change the order — they only change the margin. Order only changes at the boundary cases where one feature strongly contradicts another.
+
 Six profiles were tested — three standard and three adversarial edge cases.
 
 ---
