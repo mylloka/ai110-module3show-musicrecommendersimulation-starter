@@ -202,6 +202,54 @@ Six profiles were tested — three standard and three adversarial edge cases.
 
 ---
 
+### Musical Intuition Check
+
+**Does Profile 2 (Chill Lofi) feel right?**
+
+Library Rain (6.40) beats Midnight Coding (6.35) by just 0.05 points. Both are genuine lofi/chill tracks — a human would consider them a tie. The tiebreaker is `acousticness`: Library Rain (0.86) sits closer to the target (0.82) than Midnight Coding (0.71). The math is correct, but the precision is false — no real listener would notice the difference. This reveals that small numeric gaps in secondary features can create an illusion of confident ranking where none exists.
+
+**Why does Storm Runner rank #1 for Profile 3 (Deep Intense Rock)?**
+
+Breaking down every point Storm Runner earns:
+
+```
+genre 'rock' matches              → +2.00  (genre weight is the largest single bonus)
+mood 'intense' matches            → +1.00
+energy 0.91 vs target 0.92       → +1.98  (diff=0.01, near-perfect)
+valence 0.48 vs target 0.42      → +0.94  (diff=0.06)
+acousticness 0.10 vs target 0.08 → +0.49  (diff=0.02)
+                            TOTAL = 6.41 / 7.0
+```
+
+The genre and mood bonuses together account for **3.0 of 6.41 points (47%)**. Storm Runner wins because it is the only song in the catalog that matches rock AND intense simultaneously. Remove those two bonuses and Storm Runner would score 3.41 — lower than several other songs. The categorical weights are doing most of the work.
+
+**Does the same song keep appearing? — Dominance check**
+
+Across 6 profiles, top-1 appearances:
+
+```
+2x  Storm Runner      (Profile 3 + EDGE 2)
+1x  Sunrise City, Library Rain, Gym Hero, Midnight Coding
+```
+
+Storm Runner is not over-weighted — it repeats because it is the **only** rock song in the catalog. Any rock profile will always surface it. This is a **catalog gap**, not a weight problem. Nine of 18 songs (50%) never appeared in any top-3 slot across all six diverse profiles, confirming the dataset is too small to provide variety for niche genres.
+
+**The one result that feels genuinely wrong — EDGE 2 (high energy + sad mood)**
+
+```
+--- Current weights: genre=2.0, mood=1.0 ---
+  5.27  Storm Runner       genre +2.0; energy close  (mood: intense, NOT sad)
+  3.16  Last Highway Home  mood +1.0                 (the only sad song — at #3)
+
+--- Adjusted weights: genre=1.5, mood=2.0 ---
+  4.77  Storm Runner       genre +1.5
+  4.16  Last Highway Home  mood +2.0                 (rises to #2 but still loses)
+```
+
+A user asking for "high-energy sad music" gets an intense rock track. Raising the mood weight to 2.0 and dropping genre to 1.5 moves the sad song from #3 to #2 but still can't beat Storm Runner, because **no song in this catalog is both high-energy AND sad**. The mismatch is a catalog gap — a weight change cannot fix a missing song type. The real fix is adding a metal ballad or post-rock track with energy > 0.80 and mood = sad.
+
+---
+
 ### Profile 1 — High-Energy Pop
 
 ```
