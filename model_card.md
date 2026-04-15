@@ -1,67 +1,110 @@
 # Model Card: Music Recommender Simulation
 
+---
+
 ## 1. Model Name
 
 **VibeFinder 1.0**
 
 ---
 
-## 2. Intended Use
+## 2. Goal / Task
 
-VibeFinder 1.0 generates top-5 song recommendations from an 18-song catalog based on a user's stated taste profile. It is designed for classroom exploration of content-based filtering — not for real users or production deployment. The system assumes the user can describe their preferences in advance using genre, mood, and numeric audio targets. It does not learn from listening history or adapt over time.
+VibeFinder looks at a user's music preferences and picks the top 5 songs from a catalog that best match them.
 
----
+The user tells the system what genre they like, what mood they want, and how energetic the music should feel. The system scores every song and returns the best matches with a short explanation.
 
-## 3. How the Model Works
-
-Every song in the catalog is compared to the user's taste profile and awarded points based on how well it matches. A song earns bonus points if its genre or mood label exactly matches what the user asked for. It also earns points based on how close its audio features — energy level, emotional tone (valence), and acoustic texture — are to the user's targets. Closeness is rewarded, not just high or low values: a calm user who wants energy 0.4 will score a song at 0.42 higher than one at 0.9, even though 0.9 is technically "more." After every song is scored, they are sorted from highest to lowest, and the top five are returned with a plain-language explanation of why each one ranked where it did.
+It does not predict anything — it just ranks songs based on how well they fit the user's stated preferences.
 
 ---
 
-## 4. Data
+## 3. Data Used
 
-The catalog contains 18 songs across 15 genres and 14 mood labels. The original 10-song starter dataset was expanded by 8 songs to cover genres and moods not present in the default file, including hip-hop, classical, metal, r&b, folk, country, EDM, and reggae. Despite the expansion, 13 of 15 genres have exactly one representative song, and lofi is the only genre with three songs. The dataset reflects a Western, English-language view of music genres and does not represent K-pop, Afrobeats, Latin music, or non-Western traditions. Mood labels and audio feature values were assigned manually and may not match how a real music analysis tool would classify the same tracks.
+The catalog has **18 songs**. Each song has these features:
 
----
+- **Genre** (like pop, lofi, rock, hip-hop, jazz)
+- **Mood** (like happy, chill, intense, sad, peaceful)
+- **Energy** — a number from 0.0 (very calm) to 1.0 (very loud and intense)
+- **Valence** — a number from 0.0 (sad-sounding) to 1.0 (happy-sounding)
+- **Acousticness** — a number from 0.0 (electronic/electric) to 1.0 (acoustic/unplugged)
+- **Tempo**, **danceability** (collected but not used in scoring)
 
-## 5. Strengths
-
-The system works best for users whose preferences align with well-represented catalog areas. A lofi/chill listener receives clearly differentiated top results because three lofi songs exist to compete for ranking. A pop/happy or rock/intense listener also gets a clean top result because those genre+mood combinations map to a unique song. The scoring produces transparent, human-readable explanations for every result, which makes it easy to understand why a recommendation was made. The proximity formula correctly handles the "closeness not magnitude" problem — a moderately energetic user is not always pushed toward the highest-energy songs.
-
----
-
-## 6. Limitations and Bias
-
-**Primary weakness — single-song genre filter bubble.** Thirteen of the fifteen genres in this catalog have exactly one representative song. This means any user whose preferred genre is not lofi, pop, or rock will always receive the same song as their genre-matched #1 recommendation, with no variety possible. A reggae listener will always see Island Frequency at the top; a metal listener will always see Iron Meridian. Because the genre bonus (+2.0 points) is the largest single weight in the scoring formula, that one song will dominate the results every time that genre is requested — regardless of whether the song's energy, mood, or valence actually matches the user's preferences. This is a structural filter bubble: the system does not expose users to anything new within their genre because there is nothing else to show them. A real recommender with this design would need at minimum five to ten songs per genre before genre-based ranking produces meaningful differentiation. Beyond genre coverage, the system also cannot distinguish vocal from instrumental tracks, which matters significantly for users who listen to music while studying or working — two lofi tracks with identical feature values will always score identically even if one has distracting vocals and the other does not.
-
----
-
-## 7. Evaluation
-
-Six user profiles were tested: three standard and three adversarial edge cases.
-
-**Standard profiles (results matched musical intuition):**
-
-- **High-Energy Pop** (genre=pop, mood=happy, energy=0.88, valence=0.85, acousticness=0.10): *Sunrise City* scored #1. It is the only pop song in the catalog, so the +2.0 genre bonus locked it in place. *Gym Hero* (pop/intense) appeared in the top 5 but ranked lower because its mood tag is "intense" rather than "happy." What was surprising: *Gym Hero* still crept into the top results despite being tagged intense, purely because its energy (0.93) is so close to the target. Genre and energy together overpower mood when a song matches both.
-- **Chill Lofi** (genre=lofi, mood=chill, energy=0.38, valence=0.58, acousticness=0.82): Three lofi songs competed for the top spots — the only profile with real within-genre variety. *Library Rain* edged out *Midnight Coding* by a fraction because its acousticness (0.86) was slightly closer to the target (0.82). This showed the proximity formula doing exactly what it should.
-- **Deep Intense Rock** (genre=rock, mood=intense, energy=0.92, valence=0.42, acousticness=0.08): *Storm Runner* reached #1 easily. It is the only rock song and its energy (0.91) nearly matches the target. No surprises here — single-song genres always produce a predictable #1.
-
-**Adversarial profiles (revealed structural weaknesses):**
-
-- **EDGE 1 — Genre Trap** (genre=lofi, mood=intense, energy=0.93): The system split: lofi songs received the genre bonus but their low energy (0.35–0.42) was far from the 0.93 target, costing them nearly the full 2.0 energy points. High-energy non-lofi songs scored on energy but received no genre bonus. Neither group fully satisfied the profile. The result was a muddled top 5 where #1 was a lofi song that felt musically wrong for an intense listener.
-- **EDGE 2 — Emotional Conflict** (genre=rock, mood=sad, energy=0.90): *Last Highway Home* is the only sad-tagged song in the catalog (energy=0.44). It received +1.0 for mood but lost nearly 1.8 energy points because its energy was 0.46 away from the 0.90 target. *Storm Runner* scored higher despite having no sad mood tag, because its energy (0.91) was nearly perfect and it had the genre match. The sad song never reached #1. Raising the mood weight to 2.0 did not change the result — the energy gap was too large.
-- **EDGE 3 — Dead Center** (no genre/mood, all features at 0.50): No categorical bonus ever fired. The winner was the song closest to average across all three numeric features. This exposed which song is most "middle of the road" in the catalog — a useful test for confirming the numeric scoring works independently of the genre/mood bonuses.
-
-A weight sensitivity test on the standard profiles confirmed that doubling the energy weight and halving the genre weight did not change any top-3 ranking — songs that scored well already matched on multiple features, making them resilient to weight adjustments.
+**Limits of the data:**
+- 13 out of 15 genres have only one song each. That means users who ask for reggae, metal, or folk will always get the same song — there's nothing else to compare it to.
+- All songs are Western and English-language. No K-pop, Afrobeats, Latin, or other global styles are included.
+- Mood labels and feature values were assigned by hand. A real audio analysis tool might label them differently.
 
 ---
 
-## 8. Future Work
+## 4. Algorithm Summary
 
-The most impactful improvement would be adding five to ten songs per genre to eliminate the single-song filter bubble. Beyond data, the scoring logic could incorporate `instrumentalness` from the Spotify audio features API to serve focus and study listeners better. A diversity penalty — where the system downgrades a song if a very similar one is already in the top results — would prevent the top five from being dominated by nearly identical lofi tracks for chill profiles. Finally, a two-stage approach that first filters to candidate songs within a reasonable energy range, then ranks by all features, would prevent wildly mismatched songs from cluttering lower-ranked positions.
+The system gives each song a score out of 7.0 points. Higher score = better match.
+
+Here's how the points are awarded:
+
+| What it checks | Points if it matches |
+|---|---|
+| Genre matches the user's preference | +2.0 |
+| Mood matches the user's preference | +1.0 |
+| Energy is close to the user's target | up to +2.0 |
+| Valence is close to the user's target | up to +1.0 |
+| Acousticness is close to the user's target | up to +0.5 |
+
+**Important:** For energy, valence, and acousticness, the system rewards *closeness*, not high or low values. A user who wants energy 0.4 will score a calm song (0.42) higher than a loud song (0.9), even though 0.9 is technically "more energy." The closer the song is to what the user asked for, the more points it gets.
+
+After every song is scored, the system sorts them from highest to lowest and returns the top 5.
 
 ---
 
-## 9. Personal Reflection
+## 5. Observed Behavior / Biases
 
-Building this simulation made it clear that the most important part of a recommender is not the scoring formula — it is the catalog. A perfect formula applied to a thin, uneven dataset produces thin, uneven recommendations. The experiment that surprised me most was the weight sensitivity test: doubling the energy weight changed nothing about the top-3 order. I expected bigger shifts, but the songs that scored well already matched on multiple features at once, making them resilient to weight changes. This changed how I think about the "algorithm" as the source of recommendation quality in real apps like Spotify. The algorithm matters, but the real work happens in the data — the millions of user-generated playlists and audio features that let collaborative and content-based signals reinforce each other in ways a 18-song toy system simply cannot replicate.
+**The single-song genre trap.** 13 genres have only one song. Any user who asks for that genre will always get the same song at #1, every single time. It doesn't matter if the song's energy or mood is totally wrong — the genre bonus (+2.0) is so large that it usually wins anyway. A reggae listener always sees *Island Frequency*. A metal listener always sees *Iron Meridian*. There's no variety and no chance of discovering something new.
+
+**Mood can get overruled by energy.** When a user asks for a sad song but also wants high energy, the system can't find one — because no song in the catalog is both high-energy and sad. So the high-energy songs win on points, and the sad song never shows up at #1. The algorithm is working correctly, but the catalog doesn't have what the user needs.
+
+**Gym Hero keeps showing up for happy pop listeners.** A user asking for pop/happy gets *Sunrise City* at #1, which is correct. But *Gym Hero* (tagged pop/intense) keeps appearing in the top 5. Why? Because its energy (0.93) is very close to a high-energy target, and it gets the same genre bonus. The mood mismatch only costs it 1.0 point, which isn't enough to push it out of the top results.
+
+---
+
+## 6. Evaluation Process
+
+Six user profiles were tested. Three were normal cases and three were designed to break or stress-test the system.
+
+**Normal profiles:**
+- **High-Energy Pop** (pop, happy, energy=0.88): *Sunrise City* hit #1. Correct.
+- **Chill Lofi** (lofi, chill, energy=0.38): Three lofi songs competed. *Library Rain* won by a tiny margin on acousticness. The proximity formula worked exactly as intended.
+- **Deep Intense Rock** (rock, intense, energy=0.92): *Storm Runner* hit #1 easily. Only one rock song exists, so no surprise.
+
+**Edge case profiles:**
+- **Genre Trap** (lofi genre + intense energy=0.93): The system was pulled in two directions. Lofi songs got the genre bonus but lost energy points. High-energy songs scored on energy but got no genre bonus. Neither group was a good match. The top result felt musically wrong.
+- **Emotional Conflict** (rock, sad, energy=0.90): The only sad song in the catalog has low energy (0.44). It earned the mood bonus but lost on energy. *Storm Runner* won because energy + genre outweighed the mood match. Raising the mood weight to 2.0 still didn't fix it — the energy gap was too large.
+- **Dead Center** (no genre/mood, everything at 0.50): No categorical bonuses fired. The "most average" song in the catalog won. This confirmed the numeric scoring works on its own.
+
+A weight sensitivity test was also run: doubling the energy weight and halving the genre weight did not change the top 3 results for any of the normal profiles. Songs that scored well matched on multiple features at once, so single weight changes couldn't reorder them.
+
+---
+
+## 7. Intended Use and Non-Intended Use
+
+**What this system is for:**
+- A classroom exercise to explore how content-based filtering works
+- Learning how scoring and ranking algorithms are built
+- Testing what happens when user preferences conflict or edge cases appear
+
+**What this system is NOT for:**
+- Real music recommendations for real users
+- Replacing Spotify, Apple Music, or any actual app
+- Making decisions about what music people should or shouldn't hear
+- Any use with more than a small educational dataset
+
+This system has no collaborative filtering, no listening history, no user feedback loop, and only 18 songs. It should not be used as if it were a real product.
+
+---
+
+## 8. Ideas for Improvement
+
+1. **Add more songs per genre.** Right now 13 of 15 genres have one song each. Adding 5–10 songs per genre would make the recommendations actually varied and interesting. A reggae user could get different recommendations depending on their energy target instead of always the same song.
+
+2. **Add an `instrumentalness` feature.** Some people listen to music while studying or working and need no vocals. Right now the system can't tell the difference between a lofi track with distracting lyrics and a pure instrumental one. Adding this feature would make recommendations much better for focus and study use cases.
+
+3. **Add a diversity penalty.** For the lofi/chill profile, the top 5 results are often nearly identical — three very similar calm songs. A penalty that lowers a song's score if something very similar is already in the top results would force more variety into the recommendations.
