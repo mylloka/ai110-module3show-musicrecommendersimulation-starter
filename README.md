@@ -198,6 +198,272 @@ Use this section to document the experiments you ran. For example:
 - What happened when you added tempo or valence to the score
 - How did your system behave for different types of users
 
+Six profiles were tested — three standard and three adversarial edge cases.
+
+---
+
+### Profile 1 — High-Energy Pop
+
+```
+============================================================
+  Profile 1 — High-Energy Pop
+============================================================
+  Profile : genre=pop | mood=happy | energy=0.88 | valence=0.85 | acousticness=0.1
+============================================================
+
+  #1  Sunrise City  (Score: 6.33 / 7.0)
+       Artist : Neon Echo
+       Genre  : pop  |  Mood : happy
+       Why    : genre 'pop' matches (+2.0); mood 'happy' matches (+1.0); energy 0.82 is close to your target 0.88 (+1.88)
+  ----------------------------------------------------------
+
+  #2  Gym Hero  (Score: 5.29 / 7.0)
+       Artist : Max Pulse
+       Genre  : pop  |  Mood : intense
+       Why    : genre 'pop' matches (+2.0); energy 0.93 is close to your target 0.88 (+1.9)
+  ----------------------------------------------------------
+
+  #3  Rooftop Lights  (Score: 4.10 / 7.0)
+       Artist : Indigo Parade
+       Genre  : indie pop  |  Mood : happy
+       Why    : mood 'happy' matches (+1.0); energy 0.76 is close to your target 0.88 (+1.76)
+  ----------------------------------------------------------
+
+  #4  Orbit Rush  (Score: 3.27 / 7.0)
+       Artist : Novalux
+       Genre  : edm  |  Mood : euphoric
+       Why    : energy 0.96 is close to your target 0.88 (+1.84)
+  ----------------------------------------------------------
+
+  #5  Night Drive Loop  (Score: 3.08 / 7.0)
+       Artist : Neon Echo
+       Genre  : synthwave  |  Mood : moody
+       Why    : energy 0.75 is close to your target 0.88 (+1.9)
+  ----------------------------------------------------------
+```
+
+**Observation:** Sunrise City earned all three bonuses (genre + mood + energy), landing at #1 cleanly. The gap between #3 (4.10) and #4 (3.27) is large — this is the cliff where categorical bonuses stop firing entirely.
+
+---
+
+### Profile 2 — Chill Lofi
+
+```
+============================================================
+  Profile 2 — Chill Lofi
+============================================================
+  Profile : genre=lofi | mood=chill | energy=0.38 | valence=0.58 | acousticness=0.82
+============================================================
+
+  #1  Library Rain  (Score: 6.40 / 7.0)
+       Artist : Paper Lanterns
+       Genre  : lofi  |  Mood : chill
+       Why    : genre 'lofi' matches (+2.0); mood 'chill' matches (+1.0); energy 0.35 is close to your target 0.38 (+1.94)
+  ----------------------------------------------------------
+
+  #2  Midnight Coding  (Score: 6.35 / 7.0)
+       Artist : LoRoom
+       Genre  : lofi  |  Mood : chill
+       Why    : genre 'lofi' matches (+2.0); mood 'chill' matches (+1.0); energy 0.42 is close to your target 0.38 (+1.92)
+  ----------------------------------------------------------
+
+  #3  Focus Flow  (Score: 5.43 / 7.0)
+       Artist : LoRoom
+       Genre  : lofi  |  Mood : focused
+       Why    : genre 'lofi' matches (+2.0); energy 0.4 is close to your target 0.38 (+1.96)
+  ----------------------------------------------------------
+
+  #4  Spacewalk Thoughts  (Score: 4.18 / 7.0)
+       Artist : Orbit Bloom
+       Genre  : ambient  |  Mood : chill
+       Why    : mood 'chill' matches (+1.0); energy 0.28 is close to your target 0.38 (+1.8)
+  ----------------------------------------------------------
+
+  #5  Coffee Shop Stories  (Score: 3.31 / 7.0)
+       Artist : Slow Stereo
+       Genre  : jazz  |  Mood : relaxed
+       Why    : energy 0.37 is close to your target 0.38 (+1.98)
+  ----------------------------------------------------------
+```
+
+**Observation:** The top 3 are all lofi, correctly ordered. Spacewalk Thoughts (ambient/chill) sneaks into #4 via the mood bonus — a genuine cross-genre discovery the system made correctly.
+
+---
+
+### Profile 3 — Deep Intense Rock
+
+```
+============================================================
+  Profile 3 — Deep Intense Rock
+============================================================
+  Profile : genre=rock | mood=intense | energy=0.92 | valence=0.42 | acousticness=0.08
+============================================================
+
+  #1  Storm Runner  (Score: 6.41 / 7.0)
+       Artist : Voltline
+       Genre  : rock  |  Mood : intense
+       Why    : genre 'rock' matches (+2.0); mood 'intense' matches (+1.0); energy 0.91 is close to your target 0.92 (+1.98)
+  ----------------------------------------------------------
+
+  #2  Gym Hero  (Score: 4.11 / 7.0)
+       Artist : Max Pulse
+       Genre  : pop  |  Mood : intense
+       Why    : mood 'intense' matches (+1.0); energy 0.93 is close to your target 0.92 (+1.98)
+  ----------------------------------------------------------
+
+  #3  Iron Meridian  (Score: 3.19 / 7.0)
+       Artist : Blastforge
+       Genre  : metal  |  Mood : angry
+       Why    : energy 0.97 is close to your target 0.92 (+1.9)
+  ----------------------------------------------------------
+
+  #4  Night Drive Loop  (Score: 3.02 / 7.0)
+       Artist : Neon Echo
+       Genre  : synthwave  |  Mood : moody
+       Why    : general audio similarity
+  ----------------------------------------------------------
+
+  #5  Orbit Rush  (Score: 2.93 / 7.0)
+       Artist : Novalux
+       Genre  : edm  |  Mood : euphoric
+       Why    : energy 0.96 is close to your target 0.92 (+1.92)
+  ----------------------------------------------------------
+```
+
+**Observation:** Storm Runner (#1) is a perfect triple match. The 2.3-point gap to Gym Hero (#2) shows how decisive the genre bonus is when only one song in the catalog actually matches the genre.
+
+---
+
+### EDGE 1 — Genre Trap (lofi label + intense energy=0.93)
+
+```
+============================================================
+  EDGE 1 — Genre Trap  (lofi label + intense energy)
+============================================================
+  Profile : genre=lofi | mood=intense | energy=0.93 | valence=0.75 | acousticness=0.12
+============================================================
+
+  #1  Gym Hero  (Score: 4.45 / 7.0)
+       Artist : Max Pulse
+       Genre  : pop  |  Mood : intense
+       Why    : mood 'intense' matches (+1.0); energy 0.93 is close to your target 0.93 (+2.0)
+  ----------------------------------------------------------
+
+  #2  Storm Runner  (Score: 4.18 / 7.0)
+       Artist : Voltline
+       Genre  : rock  |  Mood : intense
+       Why    : mood 'intense' matches (+1.0); energy 0.91 is close to your target 0.93 (+1.96)
+  ----------------------------------------------------------
+
+  #3  Midnight Coding  (Score: 4.00 / 7.0)
+       Artist : LoRoom
+       Genre  : lofi  |  Mood : chill
+       Why    : genre 'lofi' matches (+2.0)
+  ----------------------------------------------------------
+
+  #4  Focus Flow  (Score: 3.95 / 7.0)
+       Artist : LoRoom
+       Genre  : lofi  |  Mood : focused
+       Why    : genre 'lofi' matches (+2.0)
+  ----------------------------------------------------------
+
+  #5  Library Rain  (Score: 3.82 / 7.0)
+       Artist : Paper Lanterns
+       Genre  : lofi  |  Mood : chill
+       Why    : genre 'lofi' matches (+2.0)
+  ----------------------------------------------------------
+```
+
+**Finding:** The genre trap worked — the system "split its vote." Pop and rock tracks won #1 and #2 because mood+energy aligned perfectly. Lofi tracks cluster at #3–#5 earning only their genre bonus (+2.0) with terrible energy proximity. No song in the catalog satisfies both constraints at once, so the two halves of the profile compete against each other.
+
+---
+
+### EDGE 2 — Emotional Conflict (high energy + sad mood)
+
+```
+============================================================
+  EDGE 2 — Emotional Conflict  (high energy + sad mood)
+============================================================
+  Profile : genre=rock | mood=sad | energy=0.9 | valence=0.28 | acousticness=0.08
+============================================================
+
+  #1  Storm Runner  (Score: 5.27 / 7.0)
+       Artist : Voltline
+       Genre  : rock  |  Mood : intense
+       Why    : genre 'rock' matches (+2.0); energy 0.91 is close to your target 0.9 (+1.98)
+  ----------------------------------------------------------
+
+  #2  Iron Meridian  (Score: 3.29 / 7.0)
+       Artist : Blastforge
+       Genre  : metal  |  Mood : angry
+       Why    : energy 0.97 is close to your target 0.9 (+1.86)
+  ----------------------------------------------------------
+
+  #3  Last Highway Home  (Score: 3.16 / 7.0)
+       Artist : June Calloway
+       Genre  : country  |  Mood : sad
+       Why    : mood 'sad' matches (+1.0)
+  ----------------------------------------------------------
+
+  #4  Gym Hero  (Score: 2.93 / 7.0)
+       Artist : Max Pulse
+       Genre  : pop  |  Mood : intense
+       Why    : energy 0.93 is close to your target 0.9 (+1.94)
+  ----------------------------------------------------------
+
+  #5  Night Drive Loop  (Score: 2.92 / 7.0)
+       Artist : Neon Echo
+       Genre  : synthwave  |  Mood : moody
+       Why    : energy 0.75 is close to your target 0.9 (+1.7)
+  ----------------------------------------------------------
+```
+
+**Finding:** The system cannot reconcile "high energy" and "sad" — these are contradictory in this catalog. Storm Runner wins by leaning on genre+energy. The only genuinely sad song (Last Highway Home) reaches #3 but scores just 3.16 because its energy (0.44) is miles from the target (0.90). The mood bonus (+1.0) is simply not strong enough to overcome that penalty. A real user who wants "aggressive sad music" would be disappointed by this result.
+
+---
+
+### EDGE 3 — Dead Center (no genre/mood, all features at 0.50)
+
+```
+============================================================
+  EDGE 3 — Dead Center  (no genre/mood, all features at 0.50)
+============================================================
+  Profile : energy=0.5 | valence=0.5 | acousticness=0.5
+============================================================
+
+  #1  Midnight Coding  (Score: 3.18 / 7.0)
+       Artist : LoRoom
+       Genre  : lofi  |  Mood : chill
+       Why    : energy 0.42 is close to your target 0.5 (+1.84)
+  ----------------------------------------------------------
+
+  #2  Last Highway Home  (Score: 3.09 / 7.0)
+       Artist : June Calloway
+       Genre  : country  |  Mood : sad
+       Why    : energy 0.44 is close to your target 0.5 (+1.88)
+  ----------------------------------------------------------
+
+  #3  Focus Flow  (Score: 3.07 / 7.0)
+       Artist : LoRoom
+       Genre  : lofi  |  Mood : focused
+       Why    : energy 0.4 is close to your target 0.5 (+1.8)
+  ----------------------------------------------------------
+
+  #4  Velvet Static  (Score: 3.05 / 7.0)
+       Artist : Deja Blue
+       Genre  : r&b  |  Mood : romantic
+       Why    : energy 0.55 is close to your target 0.5 (+1.9)
+  ----------------------------------------------------------
+
+  #5  Island Frequency  (Score: 2.94 / 7.0)
+       Artist : Sunkrown
+       Genre  : reggae  |  Mood : uplifting
+       Why    : energy 0.62 is close to your target 0.5 (+1.76)
+  ----------------------------------------------------------
+```
+
+**Finding:** With no categorical signals, the top 5 span five completely different genres (lofi, country, lofi, r&b, reggae). Scores are bunched in a 0.24-point range (3.18–2.94) — a near-tie. This exposes a weakness: when no strong signals are present, the ranking becomes almost arbitrary and the explanations are thin. A real system would ask clarifying questions rather than return these uncommitted results.
+
 ---
 
 ## Limitations and Risks
