@@ -38,7 +38,21 @@ The system works best for users whose preferences align with well-represented ca
 
 ## 7. Evaluation
 
-Six user profiles were tested: three standard (High-Energy Pop, Chill Lofi, Deep Intense Rock) and three adversarial edge cases (Genre Trap, Emotional Conflict, Dead Center). The standard profiles produced results that matched musical intuition — the correct song reached #1 in every case. The adversarial profiles revealed two structural weaknesses: the Genre Trap profile (lofi genre + intense energy) caused the system to split its ranking between mood-matched non-lofi songs and genre-matched low-energy lofi songs, with neither group fully satisfying the profile. The Emotional Conflict profile (high energy + sad mood) demonstrated that when two preferences contradict each other and the catalog has no song that satisfies both simultaneously, the heavier weight always wins — the sad song never reached #1 even after raising its weight. A weight sensitivity test confirmed that doubling the energy weight and halving the genre weight did not change the top-3 rankings for any standard profile, only inflating the scores — weight changes only reorder results at boundary cases where features conflict.
+Six user profiles were tested: three standard and three adversarial edge cases.
+
+**Standard profiles (results matched musical intuition):**
+
+- **High-Energy Pop** (genre=pop, mood=happy, energy=0.88, valence=0.85, acousticness=0.10): *Sunrise City* scored #1. It is the only pop song in the catalog, so the +2.0 genre bonus locked it in place. *Gym Hero* (pop/intense) appeared in the top 5 but ranked lower because its mood tag is "intense" rather than "happy." What was surprising: *Gym Hero* still crept into the top results despite being tagged intense, purely because its energy (0.93) is so close to the target. Genre and energy together overpower mood when a song matches both.
+- **Chill Lofi** (genre=lofi, mood=chill, energy=0.38, valence=0.58, acousticness=0.82): Three lofi songs competed for the top spots — the only profile with real within-genre variety. *Library Rain* edged out *Midnight Coding* by a fraction because its acousticness (0.86) was slightly closer to the target (0.82). This showed the proximity formula doing exactly what it should.
+- **Deep Intense Rock** (genre=rock, mood=intense, energy=0.92, valence=0.42, acousticness=0.08): *Storm Runner* reached #1 easily. It is the only rock song and its energy (0.91) nearly matches the target. No surprises here — single-song genres always produce a predictable #1.
+
+**Adversarial profiles (revealed structural weaknesses):**
+
+- **EDGE 1 — Genre Trap** (genre=lofi, mood=intense, energy=0.93): The system split: lofi songs received the genre bonus but their low energy (0.35–0.42) was far from the 0.93 target, costing them nearly the full 2.0 energy points. High-energy non-lofi songs scored on energy but received no genre bonus. Neither group fully satisfied the profile. The result was a muddled top 5 where #1 was a lofi song that felt musically wrong for an intense listener.
+- **EDGE 2 — Emotional Conflict** (genre=rock, mood=sad, energy=0.90): *Last Highway Home* is the only sad-tagged song in the catalog (energy=0.44). It received +1.0 for mood but lost nearly 1.8 energy points because its energy was 0.46 away from the 0.90 target. *Storm Runner* scored higher despite having no sad mood tag, because its energy (0.91) was nearly perfect and it had the genre match. The sad song never reached #1. Raising the mood weight to 2.0 did not change the result — the energy gap was too large.
+- **EDGE 3 — Dead Center** (no genre/mood, all features at 0.50): No categorical bonus ever fired. The winner was the song closest to average across all three numeric features. This exposed which song is most "middle of the road" in the catalog — a useful test for confirming the numeric scoring works independently of the genre/mood bonuses.
+
+A weight sensitivity test on the standard profiles confirmed that doubling the energy weight and halving the genre weight did not change any top-3 ranking — songs that scored well already matched on multiple features, making them resilient to weight adjustments.
 
 ---
 
