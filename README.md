@@ -238,6 +238,7 @@ Six profiles were tested — three standard and three adversarial edge cases.
 ### Musical Intuition Check
 
 **Does Profile 2 (Chill Lofi) feel right?**
+..
 
 Library Rain (6.40) beats Midnight Coding (6.35) by just 0.05 points. Both are genuine lofi/chill tracks — a human would consider them a tie. The tiebreaker is `acousticness`: Library Rain (0.86) sits closer to the target (0.82) than Midnight Coding (0.71). The math is correct, but the precision is false — no real listener would notice the difference. This reveals that small numeric gaps in secondary features can create an illusion of confident ranking where none exists.
 
