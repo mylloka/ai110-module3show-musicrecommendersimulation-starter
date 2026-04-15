@@ -108,3 +108,23 @@ This system has no collaborative filtering, no listening history, no user feedba
 2. **Add an `instrumentalness` feature.** Some people listen to music while studying or working and need no vocals. Right now the system can't tell the difference between a lofi track with distracting lyrics and a pure instrumental one. Adding this feature would make recommendations much better for focus and study use cases.
 
 3. **Add a diversity penalty.** For the lofi/chill profile, the top 5 results are often nearly identical — three very similar calm songs. A penalty that lowers a song's score if something very similar is already in the top results would force more variety into the recommendations.
+
+---
+
+## 9. Personal Reflection
+
+**Biggest learning moment**
+
+I expected the formula to be the hard part. It wasn't. The hardest part was the catalog. When I ran the edge case profiles, I kept thinking "the algorithm must be wrong" — but every time I checked the math, the algorithm was doing exactly what I told it to. The problem was that the catalog didn't have a song that matched what the user wanted. A sad high-energy rock song doesn't exist in 18 songs. No formula fix can recommend something that isn't there. That was the moment I understood why Spotify has 100 million tracks. The algorithm is almost secondary.
+
+**How AI tools helped — and when I had to double-check**
+
+AI helped me move fast. When I needed the proximity formula, the scoring weights, or the CSV expansion, I got working code quickly instead of spending an hour on syntax. But I had to check the output every time. At one point the tool generated songs with feature values that looked plausible but weren't consistent with the mood labels — a "peaceful" song with energy 0.85 doesn't make sense. I had to read the data manually and fix those. AI is good at writing code that runs. It's not automatically good at writing data that makes sense.
+
+**What surprised me about simple algorithms feeling like recommendations**
+
+I thought a real recommendation would need machine learning, user history, and something complex under the hood. But when I ran the High-Energy Pop profile and *Sunrise City* came out #1, it genuinely felt correct. It matched what I would have chosen by hand. A few `if` statements and some subtraction produced something that felt intelligent. That was surprising. It made me realize that "feeling like a recommendation" mostly means "matching what the user asked for" — and even a simple formula can do that when the preferences are clear and the catalog has the right song.
+
+**What I'd try next**
+
+I'd add collaborative filtering on top of this. Right now the system only knows what the user *says* they like. A real next step would be tracking which recommendations the user actually plays, skips, or replays — and using that to update the weights automatically. If a user always skips high-energy songs even when they asked for them, the system should learn that. That's the gap between this simulation and how Spotify actually works.
